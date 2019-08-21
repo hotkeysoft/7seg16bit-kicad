@@ -203,12 +203,6 @@ Text GLabel 8650 1700 0    50   Input ~ 0
 SEG_F
 Text GLabel 8650 1800 0    50   Input ~ 0
 SEG_G
-Text GLabel 5000 3150 2    50   Input ~ 0
-SCK
-Text GLabel 5000 2950 2    50   Input ~ 0
-MOSI
-Text GLabel 5000 3050 2    50   Input ~ 0
-MISO
 $Comp
 L MCU_Microchip_ATmega:ATmega8535-16AU U2
 U 1 1 5D54C498
@@ -540,24 +534,6 @@ Wire Wire Line
 	4000 1750 4250 1750
 Wire Wire Line
 	4000 1850 4250 1850
-Entry Wire Line
-	4550 2850 4650 2950
-Entry Wire Line
-	4550 2950 4650 3050
-Entry Wire Line
-	4550 3050 4650 3150
-Wire Wire Line
-	4650 2950 5000 2950
-Wire Wire Line
-	4650 3050 5000 3050
-Wire Wire Line
-	4650 3150 5000 3150
-Text Label 4750 2950 0    50   ~ 0
-IN5
-Text Label 4750 3050 0    50   ~ 0
-IN6
-Text Label 4750 3150 0    50   ~ 0
-IN7
 Wire Wire Line
 	2150 1550 2050 1550
 $Comp
@@ -755,23 +731,23 @@ Connection ~ 4750 6950
 $Comp
 L Connector_Generic:Conn_01x01 J3
 U 1 1 5D5CF319
-P 8000 5750
-F 0 "J3" H 8200 5750 50  0000 R CNN
-F 1 "VCC" H 8050 5650 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 8000 5750 50  0001 C CNN
-F 3 "~" H 8000 5750 50  0001 C CNN
-	1    8000 5750
+P 7500 5750
+F 0 "J3" H 7700 5750 50  0000 R CNN
+F 1 "VCC" H 7550 5650 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 7500 5750 50  0001 C CNN
+F 3 "~" H 7500 5750 50  0001 C CNN
+	1    7500 5750
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x01 J5
 U 1 1 5D5CF320
-P 8000 6050
-F 0 "J5" H 8200 6050 50  0000 R CNN
-F 1 "GND" H 8050 6150 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 8000 6050 50  0001 C CNN
-F 3 "~" H 8000 6050 50  0001 C CNN
-	1    8000 6050
+P 7500 6050
+F 0 "J5" H 7700 6050 50  0000 R CNN
+F 1 "GND" H 7550 6150 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 7500 6050 50  0001 C CNN
+F 3 "~" H 7500 6050 50  0001 C CNN
+	1    7500 6050
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -840,7 +816,6 @@ F 3 "" H 10000 5750 50  0001 C CNN
 	1    10000 5750
 	1    0    0    -1  
 $EndComp
-Connection ~ 9150 5750
 Wire Wire Line
 	9150 5750 9450 5750
 Connection ~ 9650 5750
@@ -848,36 +823,35 @@ Wire Wire Line
 	9650 5750 10000 5750
 Wire Wire Line
 	10000 6050 10000 6150
-Connection ~ 9150 6050
 Wire Wire Line
 	9150 6050 9450 6050
 Connection ~ 9650 6050
 Wire Wire Line
 	9650 6050 10000 6050
 Wire Wire Line
-	8950 5750 9150 5750
+	8450 5750 8650 5750
 $Comp
 L Diode:MBR0520LT D1
 U 1 1 5D5CF357
-P 8800 5750
-F 0 "D1" H 8800 5534 50  0000 C CNN
-F 1 "MBR0520LT" H 8800 5625 50  0000 C CNN
-F 2 "Diode_SMD:D_SOD-123" H 8800 5575 50  0001 C CNN
-F 3 "http://www.onsemi.com/pub_link/Collateral/MBR0520LT1-D.PDF" H 8800 5750 50  0001 C CNN
-	1    8800 5750
+P 8300 5750
+F 0 "D1" H 8300 5534 50  0000 C CNN
+F 1 "MBR0520LT" H 8300 5625 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-123" H 8300 5575 50  0001 C CNN
+F 3 "http://www.onsemi.com/pub_link/Collateral/MBR0520LT1-D.PDF" H 8300 5750 50  0001 C CNN
+	1    8300 5750
 	-1   0    0    1   
 $EndComp
 Connection ~ 9450 5750
 Wire Wire Line
 	9450 5750 9650 5750
 Wire Wire Line
-	8200 5750 8650 5750
+	7700 5750 8150 5750
 Connection ~ 9450 6050
 Wire Wire Line
 	9450 6050 9650 6050
 Wire Wire Line
-	8200 6050 9150 6050
-Text Label 8300 5750 0    50   ~ 0
+	7700 6050 8650 6050
+Text Label 7800 5750 0    50   ~ 0
 VIN
 $Comp
 L Connector_Generic:Conn_01x01 J1
@@ -934,10 +908,10 @@ NoConn ~ 8650 1900
 NoConn ~ 8650 3150
 NoConn ~ 8650 4400
 $Comp
-L Connector_Generic:Conn_01x01 J?
+L Connector_Generic:Conn_01x01 J6
 U 1 1 5D5D3B84
 P 4550 5350
-F 0 "J?" H 4750 5350 50  0000 R CNN
+F 0 "J6" H 4750 5350 50  0000 R CNN
 F 1 "LATCH" H 4600 5250 50  0000 R CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 4550 5350 50  0001 C CNN
 F 3 "~" H 4550 5350 50  0001 C CNN
@@ -945,10 +919,10 @@ F 3 "~" H 4550 5350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector_Generic:Conn_01x01 J?
+L Connector_Generic:Conn_01x01 J7
 U 1 1 5D5D3C76
 P 4550 5550
-F 0 "J?" H 4750 5550 50  0000 R CNN
+F 0 "J7" H 4750 5550 50  0000 R CNN
 F 1 "LATCH" H 4600 5450 50  0000 R CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 4550 5550 50  0001 C CNN
 F 3 "~" H 4550 5550 50  0001 C CNN
@@ -965,11 +939,54 @@ Wire Wire Line
 	4200 4950 4000 4950
 Wire Wire Line
 	4350 5350 4200 5350
+Connection ~ 4200 5350
+Wire Wire Line
+	4200 5350 4200 4950
+Entry Wire Line
+	4550 3050 4650 3150
+Entry Wire Line
+	4550 2950 4650 3050
+Entry Wire Line
+	4550 2850 4650 2950
+Text Label 4750 3150 0    50   ~ 0
+IN7
+Text Label 4750 3050 0    50   ~ 0
+IN6
+Text Label 4750 2950 0    50   ~ 0
+IN5
+Wire Wire Line
+	4650 3150 5000 3150
+Wire Wire Line
+	4650 3050 5000 3050
+Wire Wire Line
+	4650 2950 5000 2950
+Text GLabel 5000 3050 2    50   Input ~ 0
+MISO
+Text GLabel 5000 2950 2    50   Input ~ 0
+MOSI
+Text GLabel 5000 3150 2    50   Input ~ 0
+SCK
+$Comp
+L Device:C C4
+U 1 1 5D6018FA
+P 8650 5900
+F 0 "C4" H 8765 5946 50  0000 L CNN
+F 1 "0.1uF" H 8765 5855 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 8688 5750 50  0001 C CNN
+F 3 "~" H 8650 5900 50  0001 C CNN
+	1    8650 5900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8650 5750 9150 5750
+Connection ~ 8650 5750
+Connection ~ 9150 5750
+Wire Wire Line
+	9150 6050 8650 6050
+Connection ~ 9150 6050
+Connection ~ 8650 6050
 Wire Bus Line
 	4550 700  4550 3950
 Wire Bus Line
 	1700 700  1700 5850
-Connection ~ 4200 5350
-Wire Wire Line
-	4200 5350 4200 4950
 $EndSCHEMATC
