@@ -9,20 +9,22 @@
  */
 
 /*
- * IN0-IN7: PB0-PB7
+ * IN0-IN7:  PB0-PB7
+ * IN8-IN15: PC0-PC7
  * 
- * D0: PC0
- * D1: PC1
- * D2: PC2
- * D3: PC3
+ * D0: PA0
+ * D1: PA1
+ * D2: PA2
+ * D3: PA3
+ * D4: PA4
+ * D5: PA5
  * 
- * IN_LATCH: PC4
- * IN_DEBUG: PC5
+ * IN_LATCH: PD7
  * 
- * SEGA-SEGDP: PD0-PD7
+ * SEGA-SEGG: PD0-PD6
  * 
- * SEL_NUMBERBASE: ADC6
- * SEL_LATCHMODE: ADC7
+ * SEL_NUMBERBASE: PA6
+ * SEL_LATCHMODE: PA7
  */
 
 #define PA 0
@@ -30,29 +32,31 @@
 #define PC 2
 #define PD 3
 
-#define SEL_D0 14
-#define SEL_D1 15
-#define SEL_D2 16
-#define SEL_D3 17
-
-#define IN_LATCH 18
-#define IN_DEBUG 19
+#define SEL_D0 24
+#define SEL_D1 25
+#define SEL_D2 26
+#define SEL_D3 27
+#define SEL_D4 28
+#define SEL_D5 29
 
 #define SEL_NUMBERBASE A6
 #define SEL_LATCHMODE A7
 
+#define IN_LATCH 15
+
 const int digitDelay = 2;
 
-bool debug = false;
 bool triggeredOnce = false;
 int lastLatchPinState;
-byte latchedInput = 0;
+uint16_t latchedInput = 0;
 
 enum DIGIT {
   DIGIT_D0 = SEL_D0,
   DIGIT_D1 = SEL_D1,
   DIGIT_D2 = SEL_D2,
   DIGIT_D3 = SEL_D3,
+  DIGIT_D4 = SEL_D4,
+  DIGIT_D5 = SEL_D5,
 };
 
 enum LATCHMODE {
@@ -66,10 +70,6 @@ enum NUMBERBASE {
   NB_UNSIGNED_DEC,
   NB_HEX
 };
-
-bool getDebugMode() {
-  return digitalRead(IN_DEBUG);
-}
 
 LATCHMODE getLatchMode() {
   int value = analogRead(SEL_LATCHMODE);
@@ -91,21 +91,27 @@ NUMBERBASE getNumberBase() {
     return NB_HEX;      
 }
 
+uint16_t readInput() {
+  return (portRead(PC) << 8) + portRead(PB);
+}
+
 void setup() {
   // Segments
   portMode(PD, OUTPUT);
+  
   // Inputs
   portMode(PB, INPUT);
+  portMode(PC, INPUT);
 
   pinMode(SEL_D0, OUTPUT);
   pinMode(SEL_D1, OUTPUT);
   pinMode(SEL_D2, OUTPUT);
   pinMode(SEL_D3, OUTPUT);
+  pinMode(SEL_D4, OUTPUT);
+  pinMode(SEL_D5, OUTPUT);  
 
   pinMode(IN_LATCH, INPUT_PULLUP); //TODODT: remove pullup in prod  
   lastLatchPinState = digitalRead(IN_LATCH);
-  
-  pinMode(IN_DEBUG, INPUT_PULLUP);
 }
 
 const PROGMEM byte digits[17] = {
@@ -146,6 +152,8 @@ void clearDigits() {
   digitalWrite(SEL_D1, LOW);
   digitalWrite(SEL_D2, LOW);
   digitalWrite(SEL_D3, LOW);
+  digitalWrite(SEL_D4, LOW);
+  digitalWrite(SEL_D5, LOW);  
 }
 
 void selectDigit(DIGIT digit) {
@@ -153,45 +161,69 @@ void selectDigit(DIGIT digit) {
   digitalWrite(SEL_D1, digit==DIGIT_D1);
   digitalWrite(SEL_D2, digit==DIGIT_D2);
   digitalWrite(SEL_D3, digit==DIGIT_D3);
+  digitalWrite(SEL_D4, digit==DIGIT_D4);
+  digitalWrite(SEL_D5, digit==DIGIT_D5);
 }
 
-void outputNumberHex(const uint8_t number) {
-  outputDigit(number >> 4);
+void outputNumberHex(const uint16_t number) {
+  outputDigit(number >> 12);
   selectDigit(DIGIT_D2);
   delay(digitDelay);
 
-  outputDigit(number&0x0F);
+  outputDigit((number >> 8) & 0x0F);
   selectDigit(DIGIT_D3);
+  delay(digitDelay);
+  
+  outputDigit((number >> 4) & 0x0F);
+  selectDigit(DIGIT_D4);
+  delay(digitDelay);
+
+  outputDigit(number&0x0F);
+  selectDigit(DIGIT_D5);
   delay(digitDelay);
 }
 
-void outputNumberUnsignedDecimal(uint8_t number) {
-  if (number > 99) {
-    outputDigit(number/100);
+void outputNumberUnsignedDecimal(uint16_t number) {
+  if (number > 9999) {
+    outputDigit(number/10000);
     selectDigit(DIGIT_D1);
     delay(digitDelay);  
   }
-  if (number > 9) {
-    outputDigit(((number%100)/10)%10);
+  if (number > 999) {
+    outputDigit((number/1000)%10);
     selectDigit(DIGIT_D2);
+    delay(digitDelay);      
+  }
+  if (number > 99) {
+    outputDigit((number/100)%10);
+    selectDigit(DIGIT_D3);
+    delay(digitDelay);  
+  }
+  if (number > 9) {
+    outputDigit((number/10)%10);
+    selectDigit(DIGIT_D4);
      delay(digitDelay);
   }
 
   outputDigit(number%10);
-  selectDigit(DIGIT_D3);
+  selectDigit(DIGIT_D5);
   delay(digitDelay);
 }
 
-void outputNumberSignedDecimal(uint8_t number) {
-  if (number > 127) {
-    int8_t unsignedValue = -(int8_t)number;
+void outputNumberSignedDecimal(uint16_t number) {
+  if (number > 32767) {
+    int16_t unsignedValue = -(int16_t)number;
 
-    if (unsignedValue > 99)
+    if (unsignedValue > 9999)
       selectDigit(DIGIT_D0);
-    else if (unsignedValue > 10)
+    else if (unsignedValue > 999)
       selectDigit(DIGIT_D1);
-    else 
+    else if (unsignedValue > 99)
       selectDigit(DIGIT_D2);
+    else if (unsignedValue > 9)
+      selectDigit(DIGIT_D3);
+    else 
+      selectDigit(DIGIT_D4);
       
     outputMinus();
     delay(digitDelay);
@@ -202,44 +234,39 @@ void outputNumberSignedDecimal(uint8_t number) {
   }
 }
 
-void outputNumber(uint8_t number) {
-    switch(getNumberBase()) {
-      case NB_SIGNED_DEC:
-        outputNumberSignedDecimal(number);
-        break;
-      case NB_UNSIGNED_DEC:
-        outputNumberUnsignedDecimal(number);
-        break;
-      default:
-        outputNumberHex(number);
-    }
+void outputNumber(uint16_t number) {
+  switch(getNumberBase()) {
+    case NB_SIGNED_DEC:
+      outputNumberSignedDecimal(number);
+      break;
+    case NB_UNSIGNED_DEC:
+      outputNumberUnsignedDecimal(number);
+      break;
+    default:
+      outputNumberHex(number);
+  }
 }
 
 void loop() { 
   clearDigits();
   
-  debug = getDebugMode();
   LATCHMODE latchMode = getLatchMode();
 
-  if (debug) {
-    delay(100);
-  } else {
-    if (latchMode != LATCH_LIVE) {
-      bool triggered = false;
-      int currLatchState = digitalRead(IN_LATCH);
-      triggered = ((latchMode == LATCH_LH) && !lastLatchPinState && currLatchState) || 
-        ((latchMode == LATCH_HL) && lastLatchPinState && !currLatchState);
-      lastLatchPinState = currLatchState;
-  
-      if (triggered) {
-        triggeredOnce = true;
-        latchedInput = portRead(PB);
-      }
-      if (triggeredOnce) {
-        outputNumber(latchedInput);
-      }
-    } else {   
-      outputNumber(portRead(PB));
+  if (latchMode != LATCH_LIVE) {
+    bool triggered = false;
+    int currLatchState = digitalRead(IN_LATCH);
+    triggered = ((latchMode == LATCH_LH) && !lastLatchPinState && currLatchState) || 
+      ((latchMode == LATCH_HL) && lastLatchPinState && !currLatchState);
+    lastLatchPinState = currLatchState;
+
+    if (triggered) {
+      triggeredOnce = true;
+      latchedInput = readInput();;
     }
+    if (triggeredOnce) {
+      outputNumber(latchedInput);
+    }
+  } else {   
+    outputNumber(readInput());
   }
 }
