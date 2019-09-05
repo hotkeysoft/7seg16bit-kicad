@@ -134,17 +134,23 @@ const PROGMEM byte digits[17] = {
   0b01000000  // -
 };
 
-void outputBlank() {
-  portWrite(PD, 0);
+void outputBlank(DIGIT pos) {
+  clearDigits();
+  portWrite(PD, 255);
+  selectDigit(pos);
 }
 
-void outputMinus() {
-  portWrite(PD, ~pgm_read_byte_near(digits +16));
+void outputMinus(DIGIT pos) {
+  clearDigits();
+  portWrite(PD, ~pgm_read_byte_near(digits + 16));
+  selectDigit(pos);  
 }
 
-void outputDigit(const byte digit) {
+void outputDigit(const byte digit, DIGIT pos) {
+  clearDigits();
   if (digit > 15) return;
-  portWrite(PD, ~pgm_read_byte_near(digits +digit));
+  portWrite(PD, ~pgm_read_byte_near(digits + digit));
+  selectDigit(pos);  
 }
 
 void clearDigits() {
@@ -157,78 +163,81 @@ void clearDigits() {
 }
 
 void selectDigit(DIGIT digit) {
-  digitalWrite(SEL_D0, digit==DIGIT_D0);
-  digitalWrite(SEL_D1, digit==DIGIT_D1);
-  digitalWrite(SEL_D2, digit==DIGIT_D2);
-  digitalWrite(SEL_D3, digit==DIGIT_D3);
-  digitalWrite(SEL_D4, digit==DIGIT_D4);
-  digitalWrite(SEL_D5, digit==DIGIT_D5);
+  digitalWrite(digit, HIGH);
 }
 
 void outputNumberHex(const uint16_t number) {
-  outputDigit(number >> 12);
-  selectDigit(DIGIT_D2);
+  outputBlank(DIGIT_D0);
   delay(digitDelay);
 
-  outputDigit((number >> 8) & 0x0F);
-  selectDigit(DIGIT_D3);
+  outputBlank(DIGIT_D1);
+  delay(digitDelay);
+ 
+  outputDigit(number >> 12, DIGIT_D2);
+  delay(digitDelay);
+
+  outputDigit((number >> 8) & 0x0F, DIGIT_D3);
   delay(digitDelay);
   
-  outputDigit((number >> 4) & 0x0F);
-  selectDigit(DIGIT_D4);
+  outputDigit((number >> 4) & 0x0F, DIGIT_D4);
   delay(digitDelay);
 
-  outputDigit(number&0x0F);
-  selectDigit(DIGIT_D5);
+  outputDigit(number&0x0F, DIGIT_D5);
   delay(digitDelay);
 }
 
 void outputNumberUnsignedDecimal(uint16_t number) {
   if (number > 9999) {
-    outputDigit(number/10000);
-    selectDigit(DIGIT_D1);
-    delay(digitDelay);  
+    outputDigit(number/10000, DIGIT_D1);
   }
+  else {
+    outputBlank(DIGIT_D1);
+  }
+  delay(digitDelay);  
+  
   if (number > 999) {
-    outputDigit((number/1000)%10);
-    selectDigit(DIGIT_D2);
-    delay(digitDelay);      
+    outputDigit((number/1000)%10, DIGIT_D2);
+  } else {
+    outputBlank(DIGIT_D2);    
   }
+  delay(digitDelay);      
+  
   if (number > 99) {
-    outputDigit((number/100)%10);
-    selectDigit(DIGIT_D3);
-    delay(digitDelay);  
+    outputDigit((number/100)%10, DIGIT_D3);
+  } else {
+    outputBlank(DIGIT_D3);    
   }
+  delay(digitDelay);    
+  
   if (number > 9) {
-    outputDigit((number/10)%10);
-    selectDigit(DIGIT_D4);
-     delay(digitDelay);
+    outputDigit((number/10)%10, DIGIT_D4);
+  } else {
+    outputBlank(DIGIT_D4);
   }
+  delay(digitDelay);
 
-  outputDigit(number%10);
-  selectDigit(DIGIT_D5);
+  outputDigit(number%10, DIGIT_D5);
   delay(digitDelay);
 }
 
 void outputNumberSignedDecimal(uint16_t number) {
   if (number > 32767) {
-    int16_t unsignedValue = -(int16_t)number;
-
-    if (unsignedValue > 9999)
-      selectDigit(DIGIT_D0);
-    else if (unsignedValue > 999)
-      selectDigit(DIGIT_D1);
-    else if (unsignedValue > 99)
-      selectDigit(DIGIT_D2);
-    else if (unsignedValue > 9)
-      selectDigit(DIGIT_D3);
-    else 
-      selectDigit(DIGIT_D4);
-      
-    outputMinus();
-    delay(digitDelay);
+    uint16_t unsignedValue = -number;
 
     outputNumberUnsignedDecimal(unsignedValue);  
+
+    if (unsignedValue > 9999)
+      outputMinus(DIGIT_D0);
+    else if (unsignedValue > 999)
+      outputMinus(DIGIT_D1);
+    else if (unsignedValue > 99)
+      outputMinus(DIGIT_D2);
+    else if (unsignedValue > 9)
+      outputMinus(DIGIT_D3);
+    else 
+      outputMinus(DIGIT_D4);
+
+    delay(digitDelay);      
   } else {
     outputNumberUnsignedDecimal(number);
   }
